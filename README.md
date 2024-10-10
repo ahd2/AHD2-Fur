@@ -1,9 +1,8 @@
 # AHD2-PackageTemplate
 UnityPackage开发模板
 
-## 使用方法
+## TODO
 
-* 在Github根据本模板仓库新建一个仓库。
-* 把新建仓库克隆到unity项目的package文件夹下。
-* 修改package.json和ReadMe。
-* 关于changelog目前打算使用标签管理来代替。
+* 之前做prez测试乱改了一堆东西，后续有待调整。现在这版基本能用。
+* 使用方法，挂载furobject，renderfeature挂载毛发renderfeature，设置渲染队列在不透明物体之后。然后毛发shader记得挂载noise噪声图和生成毛发遮罩图。
+* 

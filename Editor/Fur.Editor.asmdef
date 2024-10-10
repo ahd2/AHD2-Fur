@@ -1,0 +1,16 @@
+{
+    "name": "Fur.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b45c5e156da01524c883ce97016b2afd"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
