@@ -6,7 +6,7 @@ public class FurRenderFeature : ScriptableRendererFeature
 {
     class FurRenderPass : ScriptableRenderPass
     {
-        private const string NameOfCommandBuffer = "Fur";//buffer名字
+        ProfilingSampler m_ProfilingSampler = new ProfilingSampler("Render Fur");
         private bool inReflectionPlane = false;
 
         public FurRenderPass(Settings settings)
@@ -15,11 +15,16 @@ public class FurRenderFeature : ScriptableRendererFeature
             this.inReflectionPlane = settings.inReflectionPlane;
         }
         
+        
+        public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
+        {
+            base.OnCameraSetup(cmd, ref renderingData);
+        }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
-            CommandBuffer cmd = CommandBufferPool.Get(NameOfCommandBuffer);
-            try
+            CommandBuffer cmd = CommandBufferPool.Get();
+            using (new ProfilingScope(cmd, m_ProfilingSampler))
             {
                 foreach (var furObject in FurObject.actives)
                 {
@@ -27,18 +32,15 @@ public class FurRenderFeature : ScriptableRendererFeature
                         continue;//如果furObject为空，跳过
                     }
 
-                    if (Shader.IsKeywordEnabled("_PLANAR_REFLECTION_CAMERA") && !inReflectionPlane)
+                    if (Shader.IsKeywordEnabled("_PLANAR_REFLECTION_CAMERA") && !inReflectionPlane || renderingData.cameraData.camera.cameraType == CameraType.Preview)
                     {
                         continue;//平面反射中不渲染
                     }
-                    furObject.SetupFurRenderCommands(cmd);
+                    furObject.SetupFurRenderCommands(ref cmd);
                 }
-                context.ExecuteCommandBuffer(cmd);
             }
-            finally
-            {
-                CommandBufferPool.Release(cmd);
-            }
+            context.ExecuteCommandBuffer(cmd);
+            CommandBufferPool.Release(cmd);
         }
 
         public override void OnCameraCleanup(CommandBuffer cmd)

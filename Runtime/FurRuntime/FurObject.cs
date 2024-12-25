@@ -87,7 +87,7 @@ public class FurObject : MonoBehaviour
     /// <summary>
     /// 处理毛发绘制指令
     /// </summary>
-    public void SetupFurRenderCommands(CommandBuffer cmd)  
+    public void SetupFurRenderCommands(ref CommandBuffer cmd)  
     {
         #if UNITY_EDITOR//编辑器下会判断状态决定绘制哪种
         if (!mesh)
@@ -98,7 +98,7 @@ public class FurObject : MonoBehaviour
         {
             case PaintMode.Fur:
                 Setup();//放在这里，因为非编辑器模式不需要每帧Setup
-                DrawFur(cmd);
+                DrawFur(ref cmd);
                 break;
             case PaintMode.FurMask:
                 DrawFurMask(cmd);
@@ -108,7 +108,7 @@ public class FurObject : MonoBehaviour
                 break;
         }
         #else//非编辑器下只会绘制毛发
-        DrawFur(cmd);
+        DrawFur(ref cmd);
         #endif
     }
     void OnEnable(){
@@ -132,7 +132,7 @@ public class FurObject : MonoBehaviour
         cmd.DrawMesh(mesh,transform.localToWorldMatrix,furMat,0,1);
     }
 
-    private void DrawFur(CommandBuffer cmd)
+    private void DrawFur(ref CommandBuffer cmd)
     {
         matrices = new Matrix4x4[layerNumber];
         for (int i = 1; i < layerNumber; i++) {//alphaTest必须从1开始，Transparent还可以从0开始
