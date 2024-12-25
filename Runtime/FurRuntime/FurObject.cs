@@ -26,6 +26,16 @@ public class FurObject : MonoBehaviour
     [SerializeField] private AnimationCurve furClipCurve = AnimationCurve.Linear(0,0,1 ,1);
     private Mesh mesh;
     private Matrix4x4[] matrices;
+    
+    //---------蒙皮网格用
+    private SkinnedMeshRenderer skinnedMeshRenderer;
+    private GraphicsBuffer m_IndexBuffer;
+    private GraphicsBuffer m_DeformedDataBuffer;
+    private GraphicsBuffer m_StaticDataBuffer;
+    private GraphicsBuffer m_SkinningDataBuffer;
+    private int m_IndexCount;
+    private int m_InstanceCount;
+    private Matrix4x4 m_Matrix;
 
     private enum PaintMode//显示模式
     {
@@ -57,9 +67,59 @@ public class FurObject : MonoBehaviour
             furMat = new Material(Shader.Find("Custom/Fur"));
             furMat.enableInstancing = true;
         }
-        mesh = GetComponent<MeshFilter>().sharedMesh;
-        //matrices = new Matrix4x4[1] {transform.localToWorldMatrix};
-        Setup();
+        //mesh = GetComponent<MeshFilter>().sharedMesh;
+        skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
+        if (!skinnedMeshRenderer)
+        {
+            Debug.LogError("skinnedMeshRenderer为空");
+        }
+
+        SkinnedMeshSetup();
+    }
+
+    public void SkinnedMeshSetup()
+    {
+        skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
+        if (!skinnedMeshRenderer)
+        {
+            Debug.LogError("skinnedMeshRenderer为空");
+        }
+        m_DeformedDataBuffer = skinnedMeshRenderer.GetVertexBuffer();
+        skinnedMeshRenderer.sharedMesh.vertexBufferTarget |= GraphicsBuffer.Target.Raw;
+        int _uvStreamID = skinnedMeshRenderer.sharedMesh.GetVertexAttributeStream(VertexAttribute.TexCoord0);
+        m_StaticDataBuffer = skinnedMeshRenderer.sharedMesh.GetVertexBuffer(_uvStreamID);
+        //m_SkinningDataBuffer = Renderer.sharedMesh.GetVertexBuffer(Renderer.sharedMesh.GetVertexAttributeStream(VertexAttribute.BlendWeight));
+            
+        m_IndexBuffer = skinnedMeshRenderer.sharedMesh.GetIndexBuffer();
+        m_IndexCount = m_IndexBuffer.count;
+        
+        furMat.SetBuffer("_DeformedData", m_DeformedDataBuffer);
+        furMat.SetBuffer("_StaticData", m_StaticDataBuffer);
+        
+        //var furObject = GameObject.Find("Model");
+        //var furObject = GameObject.Find("Wolf_Generic");
+        //SkinnedMeshRenderer SMrenderer = furObject.GetComponentInChildren<SkinnedMeshRenderer>();
+        //m_Matrix = SMrenderer.transform.parent.Find("ch_bone").Find("Bip001").Find("Bip001 Pelvis").localToWorldMatrix;
+        //m_Matrix = SMrenderer.transform.parent.Find("pm0143_00").localToWorldMatrix;
+        //Debug.Log(m_Matrix);
+        // 获取物体的世界坐标下的位置、旋转和缩放
+        Vector3 position = skinnedMeshRenderer.rootBone.position;
+        Quaternion rotation = skinnedMeshRenderer.rootBone.rotation;
+        m_Matrix = Matrix4x4.TRS(position, rotation, Vector3.one);
+        m_InstanceCount = Mathf.FloorToInt(furMat.GetFloat("_LayerCount"));
+    }
+
+    public void DrawSMFur(CommandBuffer cmd)
+    {
+        //Debug.Log("开始绘制");
+        cmd.DrawProcedural(m_IndexBuffer, m_Matrix, furMat, 1, MeshTopology.Triangles, m_IndexCount, m_InstanceCount);
+    }
+
+    public void CleanUp()
+    {
+        m_IndexBuffer?.Dispose();
+        m_DeformedDataBuffer?.Dispose();
+        m_StaticDataBuffer?.Dispose();
     }
 
     private void Setup() {

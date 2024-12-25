@@ -18,7 +18,18 @@ public class FurRenderFeature : ScriptableRendererFeature
         
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
         {
-            base.OnCameraSetup(cmd, ref renderingData);
+            foreach (var furObject in FurObject.actives)
+            {
+                if(!furObject){
+                    continue;//如果furObject为空，跳过
+                }
+
+                if (Shader.IsKeywordEnabled("_PLANAR_REFLECTION_CAMERA") && !inReflectionPlane || renderingData.cameraData.camera.cameraType == CameraType.Preview)
+                {
+                    continue;//平面反射中不渲染
+                }
+                furObject.SkinnedMeshSetup();
+            }
         }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -36,7 +47,9 @@ public class FurRenderFeature : ScriptableRendererFeature
                     {
                         continue;//平面反射中不渲染
                     }
-                    furObject.SetupFurRenderCommands(ref cmd);
+                    //furObject.SetupFurRenderCommands(ref cmd);
+                    Debug.Log(furObject);
+                    furObject.DrawSMFur(cmd);
                 }
             }
             context.ExecuteCommandBuffer(cmd);
@@ -45,6 +58,13 @@ public class FurRenderFeature : ScriptableRendererFeature
 
         public override void OnCameraCleanup(CommandBuffer cmd)
         {
+            foreach (var furObject in FurObject.actives)
+            {
+                if(!furObject){
+                    continue;//如果furObject为空，跳过
+                }
+                furObject.CleanUp();
+            }
         }
     }
 
