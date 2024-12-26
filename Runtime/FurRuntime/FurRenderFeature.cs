@@ -28,7 +28,8 @@ public class FurRenderFeature : ScriptableRendererFeature
                 {
                     continue;//平面反射中不渲染
                 }
-                furObject.SkinnedMeshSetup();
+                //furObject.SkinnedMeshSetup();
+                furObject.MeshSetup();
             }
         }
 
@@ -48,8 +49,9 @@ public class FurRenderFeature : ScriptableRendererFeature
                         continue;//平面反射中不渲染
                     }
                     //furObject.SetupFurRenderCommands(ref cmd);
-                    Debug.Log(furObject);
-                    furObject.DrawSMFur(cmd);
+                    //Debug.Log(furObject);
+                    //furObject.DrawSMFur(cmd);
+                    furObject.DrawMFur(cmd);
                 }
             }
             context.ExecuteCommandBuffer(cmd);
