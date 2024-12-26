@@ -76,7 +76,8 @@ public class FurObject : MonoBehaviour
         //     Debug.LogError("skinnedMeshRenderer为空");
         // }
 
-        SkinnedMeshSetup();
+        MeshSetup();
+        //SkinnedMeshSetup();
     }
     
     public void MeshSetup()
@@ -86,16 +87,23 @@ public class FurObject : MonoBehaviour
         // {
         //     Debug.LogError("skinnedMeshRenderer为空");
         // }
-        m_DeformedDataBuffer = mesh.GetVertexBuffer(0);
-        mesh.vertexBufferTarget |= GraphicsBuffer.Target.Raw;
-        int _uvStreamID = mesh.GetVertexAttributeStream(VertexAttribute.TexCoord0);
-        m_StaticDataBuffer = mesh.GetVertexBuffer(_uvStreamID);
+        //获取模型的属性布局信息
+        // VertexAttributeDescriptor[] test = mesh.GetVertexAttributes();
+        // foreach (var VARIABLE in test)
+        // {
+        //     Debug.Log(VARIABLE);
+        // }
+        // m_DeformedDataBuffer = mesh.GetVertexBuffer(0);
+        // mesh.vertexBufferTarget |= GraphicsBuffer.Target.Raw;
+        // int _uvStreamID = mesh.GetVertexAttributeStream(VertexAttribute.TexCoord0);
+        // Debug.Log(_uvStreamID);
+        m_StaticDataBuffer = mesh.GetVertexBuffer(0);
         //m_SkinningDataBuffer = Renderer.sharedMesh.GetVertexBuffer(Renderer.sharedMesh.GetVertexAttributeStream(VertexAttribute.BlendWeight));
             
         m_IndexBuffer = mesh.GetIndexBuffer();
         m_IndexCount = m_IndexBuffer.count;
         
-        furMat.SetBuffer("_DeformedData", m_DeformedDataBuffer);
+        //furMat.SetBuffer("_DeformedData", m_DeformedDataBuffer);
         furMat.SetBuffer("_StaticData", m_StaticDataBuffer);
         
         //var furObject = GameObject.Find("Model");
