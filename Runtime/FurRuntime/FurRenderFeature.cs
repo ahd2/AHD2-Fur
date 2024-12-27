@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -29,6 +30,13 @@ public class FurRenderFeature : ScriptableRendererFeature
                     continue;//平面反射中不渲染
                 }
                 //furObject.SkinnedMeshSetup();
+                furObject.CalDistanceToCamera(renderingData.cameraData.camera.transform.position);
+            }
+            FurObject.OrderByDistance();
+            foreach (var furObject in FurObject.actives)
+            {
+                //furObject.SkinnedMeshSetup();
+                //furObject.CalDistanceToCamera(renderingData.cameraData.camera.transform.position);
                 furObject.MeshSetup();
             }
         }

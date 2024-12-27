@@ -1,13 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 [ExecuteInEditMode]
 public class FurObject : MonoBehaviour
 {
     //存放所有激活的毛发物体
-    private static HashSet<FurObject> _actives = new HashSet<FurObject>();
+    private static List<FurObject> _actives = new List<FurObject>();
     //使毛发物体集合无法从外部增删
     public static IReadOnlyCollection<FurObject> actives{
         get{
@@ -39,6 +40,9 @@ public class FurObject : MonoBehaviour
     
     //-------------静态网格
 
+    
+    //-------
+    public float distanceToCamera;
     private enum PaintMode//显示模式
     {
         FurMask,
@@ -60,6 +64,17 @@ public class FurObject : MonoBehaviour
     private void Start()
     {
         Initialized();
+    }
+
+    public void CalDistanceToCamera(Vector3 cameraPosition)
+    {
+        distanceToCamera = Vector3.Distance(cameraPosition, transform.position);
+    }
+
+    public static void OrderByDistance()
+    {
+        //按距离排序
+        _actives = _actives.OrderByDescending(obj => obj.distanceToCamera).ToList();
     }
 
     public void Initialized()
@@ -97,6 +112,8 @@ public class FurObject : MonoBehaviour
         // mesh.vertexBufferTarget |= GraphicsBuffer.Target.Raw;
         // int _uvStreamID = mesh.GetVertexAttributeStream(VertexAttribute.TexCoord0);
         // Debug.Log(_uvStreamID);
+        mesh.vertexBufferTarget |= GraphicsBuffer.Target.Raw;
+        mesh.indexBufferTarget |= GraphicsBuffer.Target.Raw;
         m_StaticDataBuffer = mesh.GetVertexBuffer(0);
         //m_SkinningDataBuffer = Renderer.sharedMesh.GetVertexBuffer(Renderer.sharedMesh.GetVertexAttributeStream(VertexAttribute.BlendWeight));
             
